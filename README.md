@@ -166,6 +166,8 @@ Example:
 ```env
 MONGO_URI=mongodb://localhost:27017/store
 PORT=3100
+REACT_APP_BACKEND_URL=http://localhost:3100
+
 ```
 
 ---
