@@ -1,12 +1,18 @@
 import axios from 'axios';
-import { Component } from 'react';
+import React from 'react';
 
 import Products from '../../components/Products/Products';
 
-class ProductsPage extends Component {
+class ProductsPage extends React.Component {
 	state = { isLoading: true, products: [] };
 	componentDidMount() {
 		this.fetchData();
+	}
+
+	componentDidUpdate(prevProps) {
+		if (prevProps.location.search !== this.props.location.search) {
+			this.fetchData();
+		}
 	}
 
 	productDeleteHandler = productId => {
@@ -23,9 +29,24 @@ class ProductsPage extends Component {
 				console.log(err);
 			});
 	};
+
+	changePage = direction => {
+		const query = new URLSearchParams(this.props.location.search);
+		let page = parseInt(query.get('page') || 1, 10);
+		if (direction === 'next') {
+			page++;
+		} else if (direction === 'prev' && page > 1) {
+			page--;
+		}
+		this.props.history.push(`/products?page=${page}`);
+	};
+
 	fetchData = () => {
+		const query = new URLSearchParams(this.props.location.search);
+		const page = query.get('page') || 1;
+
 		axios
-			.get('http://localhost:3100/products')
+			.get(`http://localhost:3100/products?page=${page}`)
 			.then(productsResponse => {
 				this.setState({ isLoading: false, products: productsResponse.data });
 			})
@@ -37,6 +58,8 @@ class ProductsPage extends Component {
 	};
 	render() {
 		let content = <p>Loading products...</p>;
+		const query = new URLSearchParams(this.props.location.search);
+		const page = parseInt(query.get('page') || 1, 10);
 
 		if (!this.state.isLoading && this.state.products.length > 0) {
 			content = (
@@ -49,7 +72,28 @@ class ProductsPage extends Component {
 		if (!this.state.isLoading && this.state.products.length === 0) {
 			content = <p>Found no products. Try again later.</p>;
 		}
-		return <main>{content}</main>;
+		return (
+			<main>
+				{content}
+				{!this.state.isLoading && (
+					<section style={{ textAlign: 'center', marginTop: '2rem' }}>
+						<button
+							onClick={() => this.changePage('prev')}
+							disabled={page <= 1}
+						>
+							Previous
+						</button>
+						<span style={{ margin: '0 1rem' }}>Page {page}</span>
+						<button
+							onClick={() => this.changePage('next')}
+							disabled={this.state.products.length === 0}
+						>
+							Next
+						</button>
+					</section>
+				)}
+			</main>
+		);
 	}
 }
 

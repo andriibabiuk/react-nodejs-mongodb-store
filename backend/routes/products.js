@@ -4,7 +4,7 @@ const Decimal128 = mongodb.Decimal128;
 const ObjectId = mongodb.ObjectId;
 const db = require('../db');
 const router = Router();
-
+const PAGE_SIZE = require('../constants');
 // const products = [
 // 	{
 // 		_id: 'fasdlk1j',
@@ -55,20 +55,15 @@ const router = Router();
 // ];
 
 router.get('/', (req, res, next) => {
-	// const queryPage = req.query.page;
-	// const pageSize = 5;
-	// let resultProducts = [...products];
-	// if (queryPage) {
-	// 	resultProducts = products.slice(
-	// 		(queryPage - 1) * pageSize,
-	// 		queryPage * pageSize,
-	// 	);
-	// }
+	const queryPage = req.query.page ? parseInt(req.query.page, 10) : 1;
 	const products = [];
 	db.getDb()
 		.db()
 		.collection('products')
 		.find()
+		.sort({ price: -1 })
+		.skip((queryPage - 1) * PAGE_SIZE)
+		.limit(PAGE_SIZE)
 		.forEach(productDoc => {
 			productDoc.price = productDoc.price.toString();
 			products.push(productDoc);
