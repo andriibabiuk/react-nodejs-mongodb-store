@@ -1,8 +1,6 @@
 const Router = require('express').Router;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const mongodb = require('mongodb');
-const ObjectId = mongodb.ObjectId;
 const db = require('../db');
 const router = Router();
 

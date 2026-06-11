@@ -1,4 +1,5 @@
 const path = require('path');
+require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -26,6 +27,6 @@ db.initDb((err, db) => {
 	if (err) {
 		console.log(err);
 	} else {
-		app.listen(3100);
+		app.listen(process.env.PORT || 3100);
 	}
 });
